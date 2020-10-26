@@ -1,6 +1,7 @@
 # from sqlalchemy import Column, String, Integer, DateTime, create_engine
 from flask_sqlalchemy import SQLAlchemy
 import json
+import os
 
 
 database_filename = "database.db"
@@ -22,7 +23,36 @@ def setup_db(app, database_path=database_path):
     db.create_all()
 
 
-class Base(db.Model):
+# class Base(db.Model):
+#     def insert(self):
+#         db.session.add(self)
+#         db.session.commit()
+
+#     def delete(self):
+#         db.session.delete(self)
+#         db.session.commit()
+
+#     def update(self):
+#         db.session.commit()
+
+
+class Movie(db.Model):
+    """
+        Movies with attributes title and release date
+    """
+
+    __tablename__ = "Movie"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String)
+    release_date = db.Column(db.DateTime)
+    # actors = db.relationship(
+    #     "Actor", secondary=movie_actors, backref=db.backref("movies", lazy=True)
+    # )
+
+    def format(self):
+        return {"id": self.id, "title": self.title, "release_date": self.release_date}
+
     def insert(self):
         db.session.add(self)
         db.session.commit()
@@ -35,25 +65,7 @@ class Base(db.Model):
         db.session.commit()
 
 
-class Movie(Base):
-    """
-        Movies with attributes title and release date
-    """
-
-    __tablename__ = "Movie"
-
-    id = db.Column(db.Integer, primary_key=True)
-    title = dbColumn(db.String)
-    release_date = db.Column(db.DateTime)
-    actors = db.relationship(
-        "Actor", secondary=movie_actors, backref=db.backref("movies", lazy=True)
-    )
-
-    def format(self):
-        return {"id": self.id, "title": self.title, "release_date": self.release_date}
-
-
-class Actor(Base):
+class Actor(db.Model):
     """
         Actors with attributes name, age and gender
     """
@@ -73,9 +85,37 @@ class Actor(Base):
             "gender": self.gender,
         }
 
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
 
 movie_actors = db.Table(
     "movie_actors",
     db.Column("movie_id", db.Integer, db.ForeignKey("Movie.id"), primary_key=True),
     db.Column("actor_id", db.Integer, db.ForeignKey("Actor.id"), primary_key=True),
 )
+
+
+class Relation(db.Model):
+    __tablename__ = "Relation"
+
+    movie_id = db.Column(
+        "movie_id", db.Integer, db.ForeignKey("Movie.id"), primary_key=True
+    )
+    actor_id = db.Column(
+        "actor_id", db.Integer, db.ForeignKey("Actor.id"), primary_key=True
+    )
+    movies = db.relationship(
+        "Movie", foreign_keys="Relation.movie_id", backref="relation"
+    )
+    actors = db.relationship(
+        "Actor", foreign_keys="Relation.actor_id", backref="relation"
+    )

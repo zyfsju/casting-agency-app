@@ -138,17 +138,17 @@ def update_movie(movie_id):
     return jsonify(success=True, movies=[movie.format()])
 
 
-@app.errorhandler(422)
+@APP.errorhandler(422)
 def unprocessable(error):
     return jsonify({"success": False, "error": 422, "message": "unprocessable"}), 422
 
 
-@app.errorhandler(404)
+@APP.errorhandler(404)
 def not_found(error):
     return jsonify({"success": False, "error": 404, "message": "Not found"}), 404
 
 
-@app.errorhandler(AuthError)
+@APP.errorhandler(AuthError)
 def auth_error(error):
     return (
         jsonify(
