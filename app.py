@@ -16,7 +16,7 @@ def create_app(test_config=None):
     return app
 
 
-APP = create_app()
+app = create_app()
 
 """
 Casting Agency Specifications
@@ -54,12 +54,12 @@ At least two tests of RBAC for each role
 """
 
 
-@APP.route("/")
+@app.route("/")
 def root():
     return current_app.send_static_file("index.html")
 
 
-@APP.route("/actors")
+@app.route("/actors")
 @requires_auth("get:actors")
 def get_actors():
     try:
@@ -71,7 +71,7 @@ def get_actors():
     return jsonify(success=True, actors=actors)
 
 
-@APP.route("/movies")
+@app.route("/movies")
 @requires_auth("get:movies")
 def get_movies():
     try:
@@ -83,7 +83,7 @@ def get_movies():
     return jsonify(success=True, movies=movies)
 
 
-@APP.route("/actors", methods=["POST"])
+@app.route("/actors", methods=["POST"])
 @requires_auth("post:actors")
 def add_new_actor():
     try:
@@ -97,7 +97,7 @@ def add_new_actor():
     return jsonify(success=True, actors=[actor.format()])
 
 
-@APP.route("/movies", methods=["POST"])
+@app.route("/movies", methods=["POST"])
 @requires_auth("post:movies")
 def add_new_movie():
     try:
@@ -116,7 +116,7 @@ def add_new_movie():
     return jsonify(success=True, movies=[movie.format()])
 
 
-@APP.route("/actors/<int:actor_id>", methods=["PATCH"])
+@app.route("/actors/<int:actor_id>", methods=["PATCH"])
 @requires_auth("patch:actors")
 def update_actor(actor_id):
     new_actor = request.get_json()
@@ -132,7 +132,7 @@ def update_actor(actor_id):
     return jsonify(success=True, actors=[actor.format()])
 
 
-@APP.route("/movies/<int:movie_id>", methods=["PATCH"])
+@app.route("/movies/<int:movie_id>", methods=["PATCH"])
 @requires_auth("patch:movies")
 def update_movie(movie_id):
     new_movie = request.get_json()
@@ -148,7 +148,7 @@ def update_movie(movie_id):
     return jsonify(success=True, movies=[movie.format()])
 
 
-@APP.route("/actors/<int:actor_id>", methods=["DELETE"])
+@app.route("/actors/<int:actor_id>", methods=["DELETE"])
 @requires_auth("delete:actors")
 def delete_actor(actor_id):
     actor = Actor.query.get(actor_id)
@@ -161,7 +161,7 @@ def delete_actor(actor_id):
     return jsonify(success=True, delete=actor_id)
 
 
-@APP.route("/movies/<int:movie_id>", methods=["DELETE"])
+@app.route("/movies/<int:movie_id>", methods=["DELETE"])
 @requires_auth("delete:movies")
 def delete_movie(movie_id):
     movie = Movie.query.get(movie_id)
@@ -174,17 +174,17 @@ def delete_movie(movie_id):
     return jsonify(success=True, delete=movie_id)
 
 
-@APP.errorhandler(422)
+@app.errorhandler(422)
 def unprocessable(error):
     return jsonify({"success": False, "error": 422, "message": "unprocessable"}), 422
 
 
-@APP.errorhandler(404)
+@app.errorhandler(404)
 def not_found(error):
     return jsonify({"success": False, "error": 404, "message": "Not found"}), 404
 
 
-@APP.errorhandler(AuthError)
+@app.errorhandler(AuthError)
 def auth_error(error):
     return (
         jsonify(
@@ -200,4 +200,4 @@ def auth_error(error):
 
 
 if __name__ == "__main__":
-    APP.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
