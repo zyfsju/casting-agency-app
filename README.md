@@ -37,7 +37,7 @@ pip3 install -r requirements.txt
 To run the development server,
 
 ```bash
-python3 app.py
+source setup.sh && python3 app.py
 ```
 
 #### Run Tests
