@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-
+from datetime import datetime
 from models import Actor, Movie, setup_db
 from auth import AuthError, requires_auth
 
@@ -97,7 +97,12 @@ def add_new_actor():
 def add_new_movie():
     try:
         movie = request.get_json()
-        movie = Movie(title=movie.get("title"), release_date=movie.get("release_date"))
+        kwargs = {"title": movie.get("title")}
+        release_date = movie.get("release_date")
+        # if release_date:
+            # release_date = datetime.strptime(release_date, "%Y-%m-%d")
+        kwargs["release_date"] = release_date
+        movie = Movie(**kwargs)
         movie.insert()
     except AuthError as e:
         abort(e)
@@ -110,7 +115,7 @@ def add_new_movie():
 @requires_auth("patch:actors")
 def update_actor(actor_id):
     new_actor = request.get_json()
-    actor = Drink.query.get(actor_id)
+    actor = Actor.query.get(actor_id)
     if not actor:
         abort(404)
     try:
@@ -126,7 +131,7 @@ def update_actor(actor_id):
 @requires_auth("patch:movies")
 def update_movie(movie_id):
     new_movie = request.get_json()
-    movie = Drink.query.get(movie_id)
+    movie = Movie.query.get(movie_id)
     if not movie:
         abort(404)
     try:
@@ -136,6 +141,32 @@ def update_movie(movie_id):
     except Exception as e:
         abort(422)
     return jsonify(success=True, movies=[movie.format()])
+
+
+@APP.route("/actors/<int:actor_id>", methods=["DELETE"])
+@requires_auth("delete:actors")
+def delete_actor(actor_id):
+    actor = Actor.query.get(actor_id)
+    if not actor:
+        abort(404)
+    try:
+        actor.delete()
+    except:
+        abort(422)
+    return jsonify(success=True, delete=actor_id)
+
+
+@APP.route("/movies/<int:movie_id>", methods=["DELETE"])
+@requires_auth("delete:movies")
+def delete_movie(movie_id):
+    movie = Movie.query.get(movie_id)
+    if not movie:
+        abort(404)
+    try:
+        movie.delete()
+    except:
+        abort(422)
+    return jsonify(success=True, delete=movie_id)
 
 
 @APP.errorhandler(422)

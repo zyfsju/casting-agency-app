@@ -2,6 +2,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
+from datetime import datetime
 
 
 database_filename = "database.db"
@@ -51,9 +52,15 @@ class Movie(db.Model):
     # )
 
     def format(self):
-        return {"id": self.id, "title": self.title, "release_date": self.release_date}
+        if isinstance(self.release_date, datetime):
+            release_date = self.release_date.strftime("%Y-%m-%d")
+        else:
+            release_date = self.release_date
+        return {"id": self.id, "title": self.title, "release_date": release_date}
 
     def insert(self):
+        if self.release_date and not isinstance(self.release_date, datetime):
+            self.release_date = datetime.strptime(self.release_date, "%Y-%m-%d")
         db.session.add(self)
         db.session.commit()
 
@@ -62,6 +69,8 @@ class Movie(db.Model):
         db.session.commit()
 
     def update(self):
+        if self.release_date and not isinstance(self.release_date, datetime):
+            self.release_date = datetime.strptime(self.release_date, "%Y-%m-%d")
         db.session.commit()
 
 
