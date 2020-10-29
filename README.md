@@ -42,7 +42,13 @@ source setup.sh && python3 app.py
 
 #### Run Tests
 
-Import the collection `./casting-api-tests.postman_collection.json` in Postman and send requests.
+**Unit Tests**:
+
+```bash
+python3 test_app.py
+```
+
+**RBAC**: Import the collection `./casting-api-tests.postman_collection.json` in Postman and send requests.
 
 ### Frontend
 
