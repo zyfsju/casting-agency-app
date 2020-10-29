@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
@@ -54,6 +54,11 @@ At least two tests of RBAC for each role
 """
 
 
+@APP.route("/")
+def root():
+    return current_app.send_static_file("index.html")
+
+
 @APP.route("/actors")
 @requires_auth("get:actors")
 def get_actors():
@@ -100,7 +105,7 @@ def add_new_movie():
         kwargs = {"title": movie.get("title")}
         release_date = movie.get("release_date")
         # if release_date:
-            # release_date = datetime.strptime(release_date, "%Y-%m-%d")
+        # release_date = datetime.strptime(release_date, "%Y-%m-%d")
         kwargs["release_date"] = release_date
         movie = Movie(**kwargs)
         movie.insert()
